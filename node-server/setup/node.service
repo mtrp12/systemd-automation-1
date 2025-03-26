@@ -1,0 +1,14 @@
+[Unit]
+Description=Start Node.js App
+After=network.target
+
+[Service]
+User=nodejs
+Group=nodejs
+ExecStart=/usr/bin/node /home/nodejs/app/server.js
+KillMode=control-group
+WorkingDirectory=/home/nodejs/app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

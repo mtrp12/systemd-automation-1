@@ -1,0 +1,16 @@
+[Unit]
+Description=MySQL Connectivity Check Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/environment
+ExecStart=/usr/local/bin/mysql-check.sh
+Restart=on-failure
+RestartSec=30
+StandardOutput=append:/var/log/mysql-check.log
+StandardError=append:/var/log/mysql-check.log
+
+[Install]
+WantedBy=multi-user.target

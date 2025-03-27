@@ -124,7 +124,6 @@ apt-get install -y nodejs
 
 log "Creating nodejs user..."
 useradd -m nodejs
-echo "nodejs user added"
 
 log "Cloning application server and configurations..."
 git clone -b master --depth 1 https://github.com/mtrp12/systemd-automation-1.git /home/nodejs/app

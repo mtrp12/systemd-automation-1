@@ -155,10 +155,21 @@ wait_for_mysql
 systemctl start mysql-check
 systemctl start node
 
-log "Fetching service status..."
+log "Fetching mysql status..."
 systemctl status mysql
+log "Fetching mysql-check status..."
 systemctl status mysql-check
+log "Fetching node status..."
 systemctl status node
 
-log "Setup completed..."
+log "Setup completed"
 
+log "Cleaning up setup files..."
+rm -rf /home/nodejs/app/setup
+rm /home/nodejs/app/.gitattributes
+rm /home/nodejs/app/.gitignore
+rm /home/nodejs/app/README.md
+rm -rf /home/nodejs/app/.git
+
+chmod +x /home/nodejs/app/test.sh
+chmod +x /home/nodejs/app/teardown.sh

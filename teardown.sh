@@ -4,6 +4,15 @@ log(){
   echo -e "\e[95mSETUP: $1\e[0m"
 }
 
+log "Stopping services..."
+systemctl stop mysql
+systemctl stop node
+
+log "Disabling services..."
+systemctl disable mysql
+systemctl disable mysql-check
+systemctl disable node
+
 log "Removing packages..."
 apt purge mysql-* git nodejs -y
 apt autoremove -y

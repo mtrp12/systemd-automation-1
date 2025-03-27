@@ -1,6 +1,8 @@
 #!/bin/bash
 exec > >(tee /var/log/setup.log) 2>&1
 
+echo "DB_PRiVATE_IP=<DB_PRIVATE_IP>" >> /etc/environment
+
 # Update system and install dependencies
 apt-get update
 apt-get upgrade -y
@@ -13,13 +15,13 @@ apt-get install -y nodejs
 useradd -m nodejs
 echo "nodejs user added"
 
-git clone https://github.com/mtrp12/systemd-automation-1.git /home/nodejs/app
+git clone -b master --depth 1 https://github.com/mtrp12/systemd-automation-1.git /home/nodejs/app
 echo "Repository cloned"
 
 cp /home/nodejs/app/node-server/setup/mysql-check.sh /usr/local/bin/mysql-check.sh
 chmod +x /usr/local/bin/mysql-check.sh
-cp /home/nodejs/app/node-server/setup/node.service /etc/system/system/
-cp /home/nodejs/app/node-server/setup/mysql-check.service /etc/system/system/
+cp /home/nodejs/app/node-server/setup/node.service /etc/systemd/system/
+cp /home/nodejs/app/node-server/setup/mysql-check.service /etc/systemd/system/
 
 chown -R nodejs:nodejs /home/nodejs/app
 echo "file ownership set to nodejs:nodejs"

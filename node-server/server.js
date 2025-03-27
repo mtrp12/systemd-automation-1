@@ -42,16 +42,16 @@ app.get('/health', async (req, res) => {
 // Users endpoint with filtering and pagination
 app.get('/users', async (req, res) => {
   try {
-    const { id, email, page = 1, pageSize = 50 } = req.query;
+    console.log(req.query.id);
+    const { id, email, name, page = 1, pageSize = 50 } = req.query;
     
+    console.log("ID" + id);
     // Validate pagination parameters
     const parsedPage = Math.max(1, parseInt(page));
     let parsedPageSize = parseInt(pageSize);
     parsedPageSize = Math.max(0, Math.min(parsedPageSize, 999));
     if (isNaN(parsedPageSize)) parsedPageSize = 50;
-    
-    const offset = (parsedPage - 1) * parsedPageSize;
-    
+       
     // Build the query based on filters
     let query = 'SELECT * FROM users';
     const conditions = [];
@@ -66,30 +66,50 @@ app.get('/users', async (req, res) => {
       conditions.push('email LIKE ?');
       params.push(`%${email}%`);
     }
-    
-    if (conditions.length) {
-      query += ' WHERE ' + conditions.join(' AND ');
+
+    if (name) {
+      conditions.push('name LIKE ?');
+      params.push(`%${name}%`);
     }
     
+    whereClause = "";
+    console.log("CONDITION_LENGHT: " + conditions.length);
+    if (conditions.length) {
+      whereClause = ' WHERE ' + conditions.join(' AND ');
+      query += whereClause;
+    }
+
+    const offset = (parsedPage - 1) * parsedPageSize;
     // Add pagination
     query += ' LIMIT ? OFFSET ?';
     params.push(parsedPageSize, offset);
     
+    // Get total count for pagination info
+    let countQuery = 'SELECT COUNT(*) as total FROM users' + whereClause;
+
+    console.log("COUNT_QUERY: " + countQuery)
+    console.log("COUNT_PARAMS: " + params.slice(0, -2));
+    const [[{ total }]] = await pool.query(countQuery, params.slice(0, -2));
+    
+    console.log("TOTAL: " + total);
+
+ 
+    
+    console.log("QUERY: " + query);
+    console.log("PARAMS: " + params)
+
     // Execute query
     const [rows] = await pool.query(query, params);
+
+    console.log("CURRENT_PAGE_SIZE: " + rows.length);
     
-    // Get total count for pagination info
-    let countQuery = 'SELECT COUNT(*) as total FROM users';
-    if (conditions.length) {
-      countQuery += ' WHERE ' + conditions.join(' AND ');
-    }
-    const [[{ total }]] = await pool.query(countQuery, params.slice(0, -2));
+
     
     res.json({
       data: rows,
       pagination: {
         page: parsedPage,
-        pageSize: parsedPageSize,
+        pageSize: rows.length,
         totalItems: total,
         totalPages: Math.ceil(total / parsedPageSize)
       }

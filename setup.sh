@@ -169,6 +169,6 @@ rm /home/nodejs/app/.gitattributes
 rm /home/nodejs/app/.gitignore
 rm /home/nodejs/app/README.md
 rm -rf /home/nodejs/app/.git
-
-chmod +x /home/nodejs/app/test.sh
-chmod +x /home/nodejs/app/teardown.sh
+rm /home/nodejs/app/setup.sh
+rm /home/nodejs/app/teardown.sh
+rm /home/nodejs/app/test.sh

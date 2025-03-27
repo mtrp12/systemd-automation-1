@@ -22,4 +22,3 @@ done
 
 echo "Failed to connect to MySQL after $MAX_RETRIES attempts"
 exit 1
-

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 log(){
-  echo -e "\e[95mSETUP: $1\e[0m"
+  echo -e "\e[95mTEARDOWN: $1\e[0m"
 }
 
 log "Stopping services..."

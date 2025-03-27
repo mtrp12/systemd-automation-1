@@ -5,9 +5,9 @@ After=network.target
 [Service]
 User=nodejs
 Group=nodejs
-ExecStart=/usr/bin/node /home/nodejs/app/server.js
+ExecStart=/usr/bin/node /home/nodejs/app/node-server/server.js
 KillMode=control-group
-WorkingDirectory=/home/nodejs/app
+WorkingDirectory=/home/nodejs/app/node-server/
 Restart=on-failure
 
 [Install]

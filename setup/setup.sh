@@ -119,6 +119,9 @@ chmod +x /usr/local/bin/mysql-check.sh
 cp /home/nodejs/app/setup/node.service /etc/systemd/system/
 cp /home/nodejs/app/setup/mysql-check.service /etc/systemd/system/
 
+cd /home/nodejs/app/node-server
+npm install
+
 chown -R nodejs:nodejs /home/nodejs/app
 echo "file ownership set to nodejs:nodejs"
 

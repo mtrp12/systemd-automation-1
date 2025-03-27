@@ -1,6 +1,15 @@
 #!/bin/bash
 exec > >(tee /var/log/setup.log) 2>&1
 
+wait_for_mysql() {
+  max_retries=12
+  count=0
+  while ! nc -zv localhost 3306 && [ "$count" -lt "$max_retries" ]; do
+    ((count++))
+    sleep 10
+  done
+}
+
 # Update system and install dependencies
 apt-get update
 apt-get upgrade -y
@@ -8,6 +17,8 @@ apt-get install -y netcat-openbsd mysql-client git mysql-server
 
 # Configure MySQL to allow remote connections
 sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+wait_for_mysql
 
 # Create database and user
 mysql -e "CREATE DATABASE IF NOT EXISTS practice_app;"
@@ -115,12 +126,7 @@ systemctl daemon-reload
 systemctl enable mysql-check
 systemctl enable node
 
-max_retries=12
-count=0
-while ! nc -zv localhost 3306 && [ "$count" -lt "$max_retries" ]; do
-  ((count++))
-  sleep 10
-done
+wait_for_mysql
 
 systemctl start mysql-check
 systemctl start node

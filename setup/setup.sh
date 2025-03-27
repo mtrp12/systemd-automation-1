@@ -1,28 +1,39 @@
 #!/bin/bash
 exec > >(tee /var/log/setup.log) 2>&1
 
+log(){
+  echo -e "\e[95mSETUP: $1\e[0m"
+}
+
 wait_for_mysql() {
   max_retries=12
   count=0
   while ! nc -zv localhost 3306 && [ "$count" -lt "$max_retries" ]; do
     ((count++))
+    log "Waiting for mysql.."
     sleep 10
   done
 }
 
+
+
 # Update system and install dependencies
+log "Installing updates and pre-requisites..."
 apt-get update
 apt-get upgrade -y
 apt-get install -y netcat-openbsd mysql-client git mysql-server
 
 # Configure MySQL to allow remote connections
+log "Configuring mysql bind address..."
 sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
+log "Starting mysql server..."
 systemctl start mysql
 
 wait_for_mysql
 
 # Create database and user
+log "Creating database schema and users..."
 mysql -e "CREATE DATABASE IF NOT EXISTS practice_app;"
 mysql -e "CREATE USER 'api_user'@'%' IDENTIFIED BY 'secure_password_123';"
 mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE ON practice_app.* TO 'api_user'@'%';"
@@ -102,38 +113,52 @@ mysql -e "USE practice_app;INSERT INTO users (first_name, last_name, email, phon
 ('Hannah', 'Cooper', 'hannah.c@example.com', '+1901234567', TRUE);"
 
 # Restart MySQL
+log "Enable and restart mysql service..."
 systemctl enable mysql
 systemctl restart mysql
 
 
 # Install Node.js
+log "Installing nodejs..."
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt-get install -y nodejs
 
+log "Creating nodejs user..."
 useradd -m nodejs
 echo "nodejs user added"
 
+log "Cloning application server and configurations..."
 git clone -b master --depth 1 https://github.com/mtrp12/systemd-automation-1.git /home/nodejs/app
 echo "Repository cloned"
 
+log "Configuring application and pre-requisite check services..."
 cp /home/nodejs/app/setup/mysql-check.sh /usr/local/bin/mysql-check.sh
 chmod +x /usr/local/bin/mysql-check.sh
 cp /home/nodejs/app/setup/node.service /etc/systemd/system/
 cp /home/nodejs/app/setup/mysql-check.service /etc/systemd/system/
 
+log "Installing nodejs modules..."
 cd /home/nodejs/app/node-server
 npm install
 
-chown -R nodejs:nodejs /home/nodejs/app
-echo "file ownership set to nodejs:nodejs"
 
+log "Setting file ownership to nodejs:nodejs"
+chown -R nodejs:nodejs /home/nodejs/app
+
+log "Enabling application services..."
 systemctl daemon-reload
 systemctl enable mysql-check
 systemctl enable node
 
+log "Starting application services..."
 wait_for_mysql
-
 systemctl start mysql-check
 systemctl start node
 
+log "Fetching service status..."
+systemctl status mysql
+systemctl status mysql-check
+systemctl status node
+
+log "Setup completed..."
 

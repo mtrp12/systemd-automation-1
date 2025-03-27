@@ -29,3 +29,5 @@ log "Removing users..."
 userdel mysql
 groupdel mysql
 userdel -r nodejs
+
+log "Teardown complete"

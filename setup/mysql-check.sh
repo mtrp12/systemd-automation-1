@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 DB_HOST=localhost
 DB_PORT=3306
 MAX_RETRIES=30

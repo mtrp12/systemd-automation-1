@@ -18,6 +18,8 @@ apt-get install -y netcat-openbsd mysql-client git mysql-server
 # Configure MySQL to allow remote connections
 sed -i 's/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
+systemctl start mysql
+
 wait_for_mysql
 
 # Create database and user
